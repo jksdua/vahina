@@ -1,9 +1,11 @@
 Vahina
 ======
 
-** Decision tree / workflow for node.js **
+__Decision tree / workflow for node.js__
 
-This module is a simple decision tree module that aims to make it easier to replicate complex business workflows in code as closely as possible.
+Implementing business workflows is hard. Recently, I was implementing a workflow and noticed I was spending too much time thinking about how to structure my code and the resulting code looked nothing like the actual workflow! This makes it difficult to maintain code or respond to business rule changes.
+
+This tiny decision tree module aims to make it easier to replicate complex business workflows in code as closely as possible.
 
 
 Usage
@@ -22,13 +24,49 @@ npm install vahina --save
 
 Consider the following flow chart representing an approval process for a bank transaction:
 
-![Example flow](./example-flow.png)
+![Example flow](example-flow.png)
 
-This can be coded in code as follows:
+This can be coded in Javascript as follows:
 
 ```js
 	var vahina = require('vahina');
 
+	var paymentFlow = {
+		condition: enoughMoney,
+		branch: {
+			true: processPayment,
+			false: {
+				condition: userType,
+				branch: {
+					personal: 'rejected',
+					business: {
+						condition: overdraftAvailable,
+						branch: {
+							true: processOverdraft,
+							false: 'rejected'
+						}
+					}
+				}
+			}
+		}
+	};
+
+	// transaction to process
+	var transaction = { fromAccount: 123, toAccount: 456, amount: 200 };
+
+	// wrap call to vahina since no error guarding is offered by default
+	// this is left upto the user
+	var result;
+	try {
+		result = yield vahina.run(transaction, paymentFlow);
+	} catch(e) {
+		console.error(e);
+		result = 'rejected';
+	}
+
+
+	// workflow methods
+	// try not to inline these as that makes the workflow look more complicated than it is!
 	function *enoughMoney() {
 		return (yield accountsModel.balance(this.fromAccount)) > this.amount;
 	}
@@ -51,38 +89,6 @@ This can be coded in code as follows:
 		// call some other remote api
 		yield overdraft.process(this.fromAccount);
 		return 'approved';
-	}
-
-	var paymentFlow = {
-		condition: enoughMoney,
-		branch: {
-			true: processPayment,
-			false: {
-				condition: userType,
-				branch: {
-					personal: 'rejected',
-					business: {
-						condition: overdraftAvailable,
-						branch: {
-							true: processOverdraft,
-							false: 'rejected'
-						}
-					}
-				}
-			}
-		}
-	};
-
-	var transaction = { fromAccount: 123, toAccount: 456, amount: 200 };
-
-	// wrap call to vahina since no error guarding is offered by default
-	// this is left upto the user
-	var result;
-	try {
-		result = yield vahina.run(transaction, approvalFlow);
-	} catch(e) {
-		console.error(e);
-		result = 'rejected';
 	}
 ```
 
