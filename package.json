@@ -1,0 +1,32 @@
+{
+  "name": "vahina",
+  "version": "0.0.1",
+  "description": "Workflow implementation for node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --bail --harmony",
+    "example": "node --harmony example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jksdua/vahina"
+  },
+  "keywords": [
+    "decision-tree",
+    "flow-control",
+    "flow",
+    "workflow",
+    "vahina"
+  ],
+  "author": "Jaap Karan Singh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jksdua/vahina/issues"
+  },
+  "homepage": "https://github.com/jksdua/vahina",
+  "devDependencies": {
+    "co": "~3.0.5",
+    "chai": "~1.9.1",
+    "mocha": "~1.18.2"
+  }
+}
